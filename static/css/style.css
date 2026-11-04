@@ -1,0 +1,149 @@
+/* Estilização moderna e acadêmica para o Corretor de Provas A3 */
+
+:root {
+  --primary-color: #1e3a8a;
+  --primary-hover: #172554;
+  --secondary-color: #0d9488;
+  --accent-color: #2563eb;
+  --bg-light: #f8fafc;
+  --card-bg: #ffffff;
+  --text-dark: #0f172a;
+  --text-muted: #64748b;
+  --success-color: #16a34a;
+  --danger-color: #dc2626;
+  --warning-color: #d97706;
+}
+
+body {
+  background-color: var(--bg-light);
+  color: var(--text-dark);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.hero-banner {
+  background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 50%, #0d9488 100%);
+  color: white;
+  padding: 2.5rem 1rem;
+  border-radius: 0 0 1.5rem 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.card {
+  border: 1px solid #e2e8f0;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.card:hover {
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.08);
+}
+
+.stat-card {
+  background-color: var(--card-bg);
+  border-left: 4px solid var(--accent-color);
+  padding: 1.25rem;
+  border-radius: 0.5rem;
+}
+
+.scanner-container {
+  position: relative;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background-color: #000;
+  aspect-ratio: 4 / 3;
+}
+
+#videoFeed {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+#overlayCanvas {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.status-badge {
+  font-size: 0.85rem;
+  font-weight: 600;
+  padding: 0.35rem 0.65rem;
+  border-radius: 0.375rem;
+}
+
+.bubble-radio-group {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.bubble-radio-label {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: 2px solid #cbd5e1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.bubble-radio-input {
+  display: none;
+}
+
+.bubble-radio-input:checked + .bubble-radio-label {
+  background-color: var(--accent-color);
+  color: white;
+  border-color: var(--accent-color);
+}
+
+.drop-zone {
+  border: 2px dashed #94a3b8;
+  border-radius: 0.75rem;
+  padding: 2.5rem 1.5rem;
+  text-align: center;
+  background-color: #f1f5f9;
+  cursor: pointer;
+  transition: background-color 0.2s, border-color 0.2s;
+}
+
+.drop-zone:hover {
+  background-color: #e2e8f0;
+  border-color: var(--accent-color);
+}
+
+.result-image-box {
+  max-height: 700px;
+  overflow-y: auto;
+  border: 1px solid #cbd5e1;
+  border-radius: 0.5rem;
+  background-color: #334155;
+  text-align: center;
+  padding: 0.5rem;
+}
+
+.result-image-box img {
+  max-width: 100%;
+  height: auto;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2);
+}
+

@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Resultado da Correção #{{ grading.id }} - Corretor A3{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Cabeçalho do Resultado -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-4 gap-2">
+        <div>
+            <h3 class="fw-bold mb-1"><i class="bi bi-file-earmark-check me-2 text-success"></i>Relatório de Correção</h3>
+            <span class="text-muted">Avaliação #{{ grading.id }} • {{ grading.created_at }}</span>
+        </div>
+        <div class="d-flex gap-2">
+            <button onclick="window.print()" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-printer me-1"></i> Imprimir
+            </button>
+            <a href="{{ url_for('corrigir') }}" class="btn btn-primary btn-sm">
+                <i class="bi bi-camera me-1"></i> Corrigir Outra
+            </a>
+            <a href="{{ url_for('index') }}" class="btn btn-outline-dark btn-sm">Dashboard</a>
+        </div>
+    </div>
+
+    <!-- Cards de Resumo da Nota -->
+    <div class="row g-3 mb-4">
+        <!-- Aluno e Gabarito -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card h-100 shadow-sm border-start border-4 border-primary">
+                <div class="card-body">
+                    <small class="text-muted text-uppercase fw-bold">Estudante</small>
+                    <h5 class="fw-bold text-dark mt-1 mb-2">{{ grading.student_name }}</h5>
+                    <small class="text-muted d-block">Gabarito: <strong>{{ grading.answer_key_name }}</strong></small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Nota Percentual -->
+        <div class="col-lg-3 col-md-6">
+            <div class="card h-100 shadow-sm border-start border-4 {% if grading.score_percent >= 70 %}border-success{% elif grading.score_percent >= 50 %}border-warning{% else %}border-danger{% endif %}">
+                <div class="card-body">
+                    <small class="text-muted text-uppercase fw-bold">Aproveitamento</small>
+                    <div class="display-6 fw-bold {% if grading.score_percent >= 70 %}text-success{% elif grading.score_percent >= 50 %}text-warning{% else %}text-danger{% endif %} mt-1">
+                        {{ grading.score_percent }}%
+                    </div>
+                    <small class="text-muted">{{ grading.correct_count }} de 40 questões corretas</small>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detalhamento Acertos e Erros -->
+        <div class="col-lg-6 col-md-12">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <small class="text-muted text-uppercase fw-bold">Detalhamento das Respostas</small>
+                    <div class="row text-center mt-2 g-2">
+                        <div class="col-3">
+                            <div class="p-2 bg-success bg-opacity-10 rounded">
+                                <div class="fs-4 fw-bold text-success">{{ grading.correct_count }}</div>
+                                <small class="text-success fw-semibold">Acertos</small>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="p-2 bg-danger bg-opacity-10 rounded">
+                                <div class="fs-4 fw-bold text-danger">{{ grading.wrong_count }}</div>
+                                <small class="text-danger fw-semibold">Erros</small>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="p-2 bg-warning bg-opacity-10 rounded">
+                                <div class="fs-4 fw-bold text-warning">{{ grading.blank_count }}</div>
+                                <small class="text-warning fw-semibold">Em Branco</small>
+                            </div>
+                        </div>
+                        <div class="col-3">
+                            <div class="p-2 bg-secondary bg-opacity-10 rounded">
+                                <div class="fs-4 fw-bold text-secondary">{{ grading.multiple_count }}</div>
+                                <small class="text-secondary fw-semibold">Anuladas</small>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Seção Principal: Imagem Retificada Anotada e Tabela de Questões -->
+    <div class="row g-4">
+        <!-- Visualização da Folha com Anotações Matemáticas -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0 fw-bold">
+                        <i class="bi bi-image text-primary me-2"></i>Folha Retificada (Homografia)
+                    </h5>
+                    <span class="badge bg-dark">1000 × 1414 px</span>
+                </div>
+                <div class="card-body p-2 text-center bg-dark rounded-bottom">
+                    <div class="result-image-box">
+                        <img src="{{ url_for('static', filename='captures/' + grading.image_path) }}" alt="Folha Corrigida" class="img-fluid rounded">
+                    </div>
+                </div>
+                <div class="card-footer bg-white small text-muted">
+                    <span class="text-success fw-bold">Verde:</span> Acerto • 
+                    <span class="text-danger fw-bold">Vermelho:</span> Erro/Anulada • 
+                    <span class="text-warning fw-bold">Laranja:</span> Gabarito esperado
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabela Questão a Questão -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-white py-3">
+                    <h5 class="card-title mb-0 fw-bold">
+                        <i class="bi bi-list-check text-secondary me-2"></i>Gabarito Questão a Questão (40 Questões)
+                    </h5>
+                </div>
+                <div class="card-body p-0" style="max-height: 700px; overflow-y: auto;">
+                    <table class="table table-sm table-hover align-middle mb-0">
+                        <thead class="table-light sticky-top">
+                            <tr>
+                                <th class="text-center" style="width: 50px;">#</th>
+                                <th class="text-center">Assinalada</th>
+                                <th class="text-center">Oficial</th>
+                                <th class="text-center">Status</th>
+                                <th class="text-end pe-3">Preenchimento (P<sub>k</sub>)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for ans in grading.details %}
+                                <tr class="{% if ans.is_correct %}table-success bg-opacity-25{% elif ans.detected_option == 'BLANK' %}table-warning bg-opacity-25{% else %}table-danger bg-opacity-25{% endif %}">
+                                    <td class="text-center fw-bold text-muted">Q{{ "%02d"|format(ans.question_num) }}</td>
+                                    <td class="text-center fw-bold">
+                                        {% if ans.detected_option == 'BLANK' %}
+                                            <span class="badge bg-warning text-dark">Em Branco</span>
+                                        {% elif ans.detected_option == 'MULTIPLE' %}
+                                            <span class="badge bg-danger">Dupla Marc.</span>
+                                        {% else %}
+                                            <span class="badge bg-dark fs-6">{{ ans.detected_option }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-center fw-bold text-primary fs-6">{{ ans.official_option }}</td>
+                                    <td class="text-center">
+                                        {% if ans.is_correct %}
+                                            <span class="badge bg-success"><i class="bi bi-check-lg me-1"></i>Correta</span>
+                                        {% elif ans.detected_option == 'BLANK' %}
+                                            <span class="badge bg-warning text-dark"><i class="bi bi-dash-circle me-1"></i>Branco</span>
+                                        {% elif ans.detected_option == 'MULTIPLE' %}
+                                            <span class="badge bg-danger"><i class="bi bi-exclamation-triangle me-1"></i>Anulada</span>
+                                        {% else %}
+                                            <span class="badge bg-danger"><i class="bi bi-x-lg me-1"></i>Incorreta</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="text-end pe-3 font-monospace small">
+                                        {{ (ans.fill_ratio * 100)|round(1) }}%
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

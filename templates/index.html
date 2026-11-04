@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Corretor Automático A3{% endblock %}
+
+{% block content %}
+<div class="hero-banner">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <h1 class="display-6 fw-bold mb-2">Corretor Automático de Provas Objetivas</h1>
+                <p class="lead mb-3">Solução de visão computacional com correção em tempo real baseada em Transformação de Perspectiva (Homografia) e Segmentação Recursiva (Flood Fill).</p>
+                <div class="d-flex flex-wrap gap-2">
+                    <a href="{{ url_for('corrigir') }}" class="btn btn-light fw-bold text-primary">
+                        <i class="bi bi-camera-video me-1"></i> Iniciar Correção
+                    </a>
+                    <a href="{{ url_for('gabaritos') }}" class="btn btn-outline-light">
+                        <i class="bi bi-plus-circle me-1"></i> Cadastrar Gabarito
+                    </a>
+                    <a href="{{ url_for('download_folha') }}" class="btn btn-outline-light">
+                        <i class="bi bi-download me-1"></i> Baixar Folha de Respostas
+                    </a>
+                </div>
+            </div>
+            <div class="col-lg-4 text-center mt-4 mt-lg-0">
+                <div class="p-3 bg-white bg-opacity-10 rounded-4 border border-white border-opacity-25 backdrop-blur">
+                    <div class="small text-uppercase fw-semibold tracking-wide text-light">Status do Protótipo</div>
+                    <div class="fs-4 fw-bold text-white mt-1">Homologado</div>
+                    <small class="text-white-50">Álgebra Linear & Indução Integradas</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container mb-5">
+    <!-- Cards de Métricas -->
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card shadow-sm">
+                <div class="text-muted small text-uppercase fw-semibold">Gabaritos Cadastrados</div>
+                <div class="fs-2 fw-bold text-primary mt-1">{{ answer_keys|length }}</div>
+                <small class="text-muted">Provas parametrizadas no sistema</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card shadow-sm" style="border-left-color: #0d9488;">
+                <div class="text-muted small text-uppercase fw-semibold">Provas Corrigidas</div>
+                <div class="fs-2 fw-bold text-success mt-1">{{ gradings|length }}</div>
+                <small class="text-muted">Avaliações processadas no histórico</small>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card shadow-sm" style="border-left-color: #d97706;">
+                <div class="text-muted small text-uppercase fw-semibold">Média Geral de Acertos</div>
+                <div class="fs-2 fw-bold text-warning mt-1">
+                    {% if gradings %}
+                        {{ (gradings|sum(attribute='score_percent') / gradings|length)|round(1) }}%
+                    {% else %}
+                        0.0%
+                    {% endif %}
+                </div>
+                <small class="text-muted">Desempenho consolidado</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Lista de Gabaritos -->
+        <div class="col-lg-5">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0 fw-bold"><i class="bi bi-card-checklist text-primary me-2"></i>Gabaritos Oficiais</h5>
+                    <a href="{{ url_for('gabaritos') }}" class="btn btn-sm btn-outline-primary">Novo</a>
+                </div>
+                <div class="card-body p-0">
+                    {% if answer_keys %}
+                        <div class="list-group list-group-flush">
+                            {% for key in answer_keys %}
+                                <div class="list-group-item p-3 d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1 fw-bold">{{ key.name }}</h6>
+                                        <small class="text-muted">40 questões • Criado em {{ key.created_at[:10] }}</small>
+                                    </div>
+                                    <div class="d-flex gap-2">
+                                        <a href="{{ url_for('corrigir', key_id=key.id) }}" class="btn btn-sm btn-primary" title="Usar este gabarito para corrigir">
+                                            <i class="bi bi-camera me-1"></i> Usar
+                                        </a>
+                                        <form method="POST" action="{{ url_for('delete_gabarito', key_id=key.id) }}" onsubmit="return confirm('Deseja realmente excluir este gabarito?');" class="d-inline">
+                                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Excluir">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="p-4 text-center text-muted">
+                            <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                            Nenhum gabarito cadastrado ainda.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Histórico de Provas Corrigidas -->
+        <div class="col-lg-7">
+            <div class="card h-100 shadow-sm">
+                <div class="card-header bg-white py-3 d-flex justify-content-between align-items-center">
+                    <h5 class="card-title mb-0 fw-bold"><i class="bi bi-clock-history text-secondary me-2"></i>Histórico Recente de Correções</h5>
+                    <a href="{{ url_for('corrigir') }}" class="btn btn-sm btn-success">Nova Correção</a>
+                </div>
+                <div class="card-body p-0">
+                    {% if gradings %}
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Aluno / Origem</th>
+                                        <th>Gabarito</th>
+                                        <th class="text-center">Acertos</th>
+                                        <th class="text-center">Nota</th>
+                                        <th class="text-end">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for g in gradings %}
+                                        <tr>
+                                            <td class="fw-bold text-muted">#{{ g.id }}</td>
+                                            <td>
+                                                <div class="fw-semibold">{{ g.student_name }}</div>
+                                                <small class="text-muted">{{ g.created_at[:16] }}</small>
+                                            </td>
+                                            <td><span class="badge bg-light text-dark border">{{ g.answer_key_name }}</span></td>
+                                            <td class="text-center fw-bold">{{ g.correct_count }}/40</td>
+                                            <td class="text-center">
+                                                <span class="badge {% if g.score_percent >= 70 %}bg-success{% elif g.score_percent >= 50 %}bg-warning text-dark{% else %}bg-danger{% endif %} fs-6">
+                                                    {{ g.score_percent }}%
+                                                </span>
+                                            </td>
+                                            <td class="text-end">
+                                                <a href="{{ url_for('ver_correcao', grading_id=g.id) }}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="bi bi-eye me-1"></i> Detalhes
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="p-4 text-center text-muted">
+                            <i class="bi bi-camera fs-1 d-block mb-2"></i>
+                            Nenhuma prova corrigida ainda. Clique em <strong>Corrigir Prova</strong> para testar via câmera ou upload!
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

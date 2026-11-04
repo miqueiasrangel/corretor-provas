@@ -1,0 +1,19 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+env/
+.env
+
+# Banco de dados e logs locais
+*.log
+
+# Capturas temporárias (mantendo o diretório)
+static/captures/*.jpg
+!static/captures/.gitkeep
+
+# IDEs
+.vscode/
+.idea/
+

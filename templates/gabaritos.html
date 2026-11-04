@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+
+{% block title %}Cadastrar Gabarito - Corretor A3{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="card shadow-sm border-0">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="card-title mb-0 fw-bold"><i class="bi bi-pencil-square me-2"></i>Novo Gabarito Oficial (40 Questões)</h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST" action="{{ url_for('gabaritos') }}">
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-8">
+                                <label for="name" class="form-label fw-bold">Nome da Prova / Disciplina</label>
+                                <input type="text" class="form-control" id="name" name="name" required placeholder="Ex: Prova Final 2026.2 - Estruturas Matemáticas">
+                            </div>
+                            <div class="col-md-4 d-flex align-items-end">
+                                <div class="dropdown w-100">
+                                    <button class="btn btn-outline-secondary dropdown-toggle w-100" type="button" data-bs-toggle="dropdown">
+                                        <i class="bi bi-magic me-1"></i> Preenchimento Rápido
+                                    </button>
+                                    <ul class="dropdown-menu">
+                                        <li><a class="dropdown-item" href="#" onclick="fillPattern('CYCLE'); return false;">Padrão Cíclico (A, B, C, D, E)</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="fillPattern('A'); return false;">Marcar Todas como A</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="fillPattern('B'); return false;">Marcar Todas como B</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="fillPattern('C'); return false;">Marcar Todas como C</a></li>
+                                        <li><a class="dropdown-item" href="#" onclick="fillPattern('RANDOM'); return false;">Aleatório Balanceado</a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <h5 class="fw-bold mb-3 text-secondary">Selecione a alternativa correta de cada questão:</h5>
+
+                        <div class="row g-4">
+                            <!-- Bloco 1: Questões 01 a 20 -->
+                            <div class="col-md-6 border-end">
+                                <h6 class="fw-bold text-primary mb-3"><i class="bi bi-1-circle me-1"></i> Bloco 1 (Questões 01 a 20)</h6>
+                                {% for q in range(1, 21) %}
+                                    <div class="d-flex align-items-center justify-content-between py-1 border-bottom">
+                                        <span class="fw-bold text-muted" style="width: 45px;">Q{{ "%02d"|format(q) }}</span>
+                                        <div class="bubble-radio-group">
+                                            {% for opt in ['A', 'B', 'C', 'D', 'E'] %}
+                                                <input type="radio" class="bubble-radio-input" name="q_{{ q }}" id="q_{{ q }}_{{ opt }}" value="{{ opt }}" {% if opt == 'A' %}checked{% endif %}>
+                                                <label class="bubble-radio-label" for="q_{{ q }}_{{ opt }}">{{ opt }}</label>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+
+                            <!-- Bloco 2: Questões 21 a 40 -->
+                            <div class="col-md-6">
+                                <h6 class="fw-bold text-primary mb-3"><i class="bi bi-2-circle me-1"></i> Bloco 2 (Questões 21 a 40)</h6>
+                                {% for q in range(21, 41) %}
+                                    <div class="d-flex align-items-center justify-content-between py-1 border-bottom">
+                                        <span class="fw-bold text-muted" style="width: 45px;">Q{{ "%02d"|format(q) }}</span>
+                                        <div class="bubble-radio-group">
+                                            {% for opt in ['A', 'B', 'C', 'D', 'E'] %}
+                                                <input type="radio" class="bubble-radio-input" name="q_{{ q }}" id="q_{{ q }}_{{ opt }}" value="{{ opt }}" {% if opt == 'A' %}checked{% endif %}>
+                                                <label class="bubble-radio-label" for="q_{{ q }}_{{ opt }}">{{ opt }}</label>
+                                            {% endfor %}
+                                        </div>
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+
+                        <div class="d-flex justify-content-between align-items-center mt-4 pt-3 border-top">
+                            <a href="{{ url_for('index') }}" class="btn btn-outline-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary px-4 fw-bold">
+                                <i class="bi bi-check-lg me-1"></i> Salvar Gabarito
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function fillPattern(type) {
+    const options = ['A', 'B', 'C', 'D', 'E'];
+    for (let q = 1; q <= 40; q++) {
+        let chosen = 'A';
+        if (type === 'CYCLE') {
+            chosen = options[(q - 1) % 5];
+        } else if (type === 'RANDOM') {
+            chosen = options[Math.floor(Math.random() * options.length)];
+        } else {
+            chosen = type;
+        }
+        const radio = document.getElementById(`q_${q}_${chosen}`);
+        if (radio) radio.checked = true;
+    }
+}
+</script>
+{% endblock %}
+
